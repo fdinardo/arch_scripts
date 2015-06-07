@@ -1,0 +1,121 @@
+#!/bin/bash
+
+## Copyright (C) 2012, Francesco Di Nardo
+## If you have any questions or to report me a bug, contact me on: francesco.dinardo85@gmail.com
+
+## This program is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+
+## You should have received a copy of the GNU General Public License
+## along with this program.  If not, see <http://www.gnu.org/licenses/>.
+   
+## template:Crea un modello presente in gnome-models nella directory corrente.
+
+# Includi una seria di variabili per i colori
+. colors
+
+# Crea il file. Copiando il contenuto del template nel nuovo file
+# Argoumnts: (1) file da copiare 
+#            (2) file da creare
+# Returns: true se andato a buon fine la creazione
+#          false altrimenti
+function createFile(){
+    if cat "$MODEL_DIR/$1" > "$PWD/$2" ; then
+    	#true
+        return 0
+    else
+    	#false
+        return 1
+    fi
+}
+
+# Controlla se l'input è numerico
+function isNumeric() {
+    echo "$@" | grep -q -v "[^0-9]"
+}
+
+MODEL_DIR="/home/$USER/Modelli"
+array=( `ls $MODEL_DIR` )
+count=${#array[@]}
+
+echo "Scegli un modello:"
+for ((i=0; i<$count; i++)); do
+	echo -e "$LGREEN$i) $CYAN${array[$i]}$Z"
+done
+
+echo -n ">> "
+read choice
+
+# Controlla se la scelta è un numero valido. 
+if isNumeric "$choice"; then
+    if (( $choice < $count && $choice >= 0 )); then
+        
+        # Se il nome non è stato dato in imput come argomento chiedi il nome del nuovo file
+        if [[ $# -lt 1 ]]; then
+	        echo "Nome nuovo file:"
+	        echo -n ">> "
+	        read name
+        else
+            name=$1
+        fi
+
+	    file=${array[$choice]}
+
+	    # Se il file origine non ha estensione allora non la segnalare
+	    if ! `ls "$MODEL_DIR/"$file | grep "\." >> /dev/null `; then
+		    extension=""
+		# altrimenti prendi quella del file di origine
+	    else
+		    extension=".$( echo $file | cut -d . -f2 )"		
+	    fi
+
+        filename=$name$extension
+
+        ## Sostituire il file in caso esista gia 					 ##
+        ###############################################################
+		if [ -e $filename ]; then
+			echo -en "$RED***$Z ATTENZIONE: Il file $RED$filename$Z esiste già.\nVuoi sostituirlo? [s/N]"
+			read replace
+			if [[ $replace == "s" || $replace == "S" ]]; then
+				if createFile $file $filename ; then
+					echo -e "Sovrascritto file $CYAN$filename$Z in $LGREEN$PWD$Z"
+					exit 0
+				else 
+					echo -e "$RED***$Z ERRORE: Impossibile creare $CYAN$filename$Z in $LGREEN$PWD$Z"
+					exit 1
+				fi
+			else
+				echo -e "File $CYAN$filename$Z non sovrascritto."
+				exit 0 
+			fi
+		else
+			if createFile $file $filename ; then
+				echo -e "Creato file $CYAN$filename$Z in $LGREEN$PWD$Z"
+				exit 0
+			else 
+				echo -e "$RED***$Z ERRORE: Impossibile creare $CYAN$filename$Z in $LGREEN$PWD$Z"
+				exit 1
+			fi
+		fi
+               
+    #ERRORE: indice out of bound     
+    else 
+	    echo "USAGE--> inserisci l'indice del modello."
+	    echo -n "USAGE--> un numero compreso fra 0 e "
+	    echo $(($count - 1))
+	    exit 1
+    fi
+
+#ERRORE: input error type inaspected
+else
+    echo "USAGE--> l'indice deve essere un numero"
+    exit 1
+fi
+exit 0

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+## Cerca all'interno della work dir ( e subdir ) il testo $1 in tutti i pdf
+## Author: phil 
+## on: http://stackoverflow.com/questions/4643438/how-to-search-contents-of-multiple-pdf-files
+
+find . -iname '*.pdf' | while read filename
+do
+    #echo -e "\033[34;1m// === PDF Document:\033[33;1m $filename\033[0m"
+    pdftotext -q -enc ASCII7 "$filename" "$filename."; grep -s -H --color=always -i $1 "$filename."
+    rm -f "$filename."
+done
+exit

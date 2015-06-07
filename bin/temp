@@ -1,0 +1,13 @@
+#!/bin/bash
+# Show temperatures of cpu and gpu. 
+# If the aticonfig is installed, then use it, else 
+# use open driver with sensors (ONLY FOR ATI VIDEO CARD)
+
+acpi -t
+
+#TODO: check the type of the video card
+if aticonfig &> /dev/null; then
+    aticonfig --od-gettemperature | grep "Sensor 0" | cut -c43-46
+else
+    echo "Video: $(sensors radeon-pci-0200 | grep temp |  cut -d'+' -f 2 | cut -b '1 2 3 4') degrees C";
+fi

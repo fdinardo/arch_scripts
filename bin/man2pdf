@@ -1,0 +1,58 @@
+#!/bin/bash
+
+## Copyright (C) 2012, Francesco Di Nardo
+## If you have any questions or to report me a bug, contact me on: francesco.dinardo85@gmail.com
+
+## This program is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+
+## You should have received a copy of the GNU General Public License
+## along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##    
+## man2pdf:Converts the command's manual in a pdf with the same command name,
+## if and only if exists the manual for the argouments.
+
+## Check dependences.
+if ! which ps2pdf &>/dev/null || ! which man &>/dev/null; then
+	echo "Check if the commands 'ps2pdf' and 'man' are in $PATH"
+	echo "or if they are installed."
+    echo "Otherwise you have to install them."
+	exit 1
+fi
+
+## Checks the argouments
+if [ "$#" -eq "0" ]; then
+	echo "USAGE: $0 <commands list to convert in pdf>"
+	exit 1
+fi
+
+## Transforms the manual page in pdf file and puts them in a specify Directory.
+DIR=$HOME/Documenti/Libreria/ManPages
+PDFGEN=0
+for COMMAND in $@; do 
+	if /usr/bin/man $COMMAND &>/dev/null; then
+		/usr/bin/man -t $COMMAND | ps2pdf - $DIR/$COMMAND.pdf
+		PDFGEN=$(($PDFGEN + 1))
+	else
+		/usr/bin/man $COMMAND
+	fi
+done
+
+## Dynamic final Message.
+## If there aren't 
+if [[ $PDFGEN -eq 0 ]]; then 
+	echo "No file pdf generated."
+else
+	echo To view pdf files genereted from man2pdf
+	echo go to $HOME/Documenti/ManPages.
+    echo "Argouments number: $#."
+    echo "Files created: $PDFGEN."
+fi
+exit 0

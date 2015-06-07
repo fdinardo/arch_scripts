@@ -1,0 +1,113 @@
+#!/bin/bash
+# Switch dpi config of gnome
+# if the monitor not is hidpi
+# 
+# @PARAMS:
+# Value 1 Will set the scaling for FullHD resolution
+# Value 2 Will set the scaling for HIDPI resolution
+# ===================================================
+# argouments:		the value of scaling (1 or 2)
+# usage: 			$0 [1|2]
+# author			francdin@gmail.com
+
+
+# Helper for check the value of $?
+# @RETURNS true if $? = 0 else false
+_cmd_in_bg_status() {
+	if [ -n "$1" ];then 
+		nohup $1 </dev/null &>/dev/null &
+	fi
+	echo "$?";
+}
+
+
+#
+# Main ---------------------------------------
+#
+
+VAL=$1
+ACTUAL_VAL=$(gsettings get org.gnome.settings-daemon.plugins.xsettings overrides | cut -d '<' -f2 | cut -d '>' -f1);
+
+# DEBUG: check actual_val with user_val. If they are equals then don't do anything
+if [ $VAL -eq $ACTUAL_VAL ]; then
+	
+	if [ $VAL -eq 1 ]; then
+		SCALE_F="FULL HD"
+	else if [ $VAL -eq 2 ]; then
+		SCALE_F="HIDPI"
+	fi
+
+	echo "Gnome-shell is already setted on $SCALE_F"
+	echo "Nothing to do!"
+	exit 0
+fi
+
+if [ -z $VAL ]; then
+	# If the user not provide the scaling value 
+	# set the opposite of the current value
+	VAL=$ACTUAL_VAL
+	
+	if [ $VAL -eq 1 ]; then
+		VAL=2
+	else
+		VAL=1
+	fi
+elif [ $VAL -gt 2 ] || [ $VAL -lt 1 ]; then
+	# else check the input argoument 
+	echo "> $VAL : No aviable value of scaling."
+	echo "> The value is an integer between 1 and 2 included"
+	echo "USAGE:" 
+	echo -e "\tvalue 1 = FullHD <= (1920x1080)\n"
+	echo -e "\tvalue 2 = HIDPI > (1920x1080)\n"
+	exit -1
+fi
+
+# set the value passed as argument or 
+# the value calculate if the script was
+# runned without arguments
+gsettings set org.gnome.settings-daemon.plugins.xsettings overrides "{'Gdk/WindowScalingFactor': <$VAL>}"
+gsettings set org.gnome.desktop.interface scaling-factor $VAL
+if [ $VAL -eq 1 ]; then 
+	SCALING_FACTOR="FULL HD <= (1920x1080)"
+	FIREFOX_SC="1"
+else
+	SCALING_FACTOR="HIDPI > (1920x1080)"
+	FIREFOX_SC="2"
+fi
+
+# Restart gnome-shell
+echo -e "Restart gnome-shell..."
+#gnome-shell -r nohup
+if [ $(_cmd_in_bg_status "gnome-shell -r") -eq 0 ]; then
+	echo "OK"
+else
+	echo "ERROR gnome shell restart"
+fi
+
+# Restart nautilus
+echo -e "Restart nautilus..."
+
+# Quit nautilus
+/usr/bin/nautilus -q &> /dev/null;
+
+# Run Nautilus in BG
+if [ $(_cmd_in_bg_status "nautilus -n") -eq 0 ]; then
+	echo "OK"
+else
+	echo " ERROR nautilus restart"
+fi
+
+# Setting chrome scale factor
+
+# Setting firefox scaling adding user.js file in firefox_dir
+FF_DIR=$HOME/.mozilla/firefox/;
+FF_RAND_DIR=$(basename $HOME/.mozilla/firefox/*.default);
+echo 'user_pref("layout.css.devPixelsPerPx", "'$FIREFOX_SC'");' > $FF_DIR$FF_RAND_DIR/user.js
+
+if [ $? -eq 0 ]; then 
+	echo "Firefox scaling set to: $FIREFOX_SC";
+fi
+
+echo
+echo ">>>>> The Scaling factor is now setted @ $SCALING_FACTOR ."
+

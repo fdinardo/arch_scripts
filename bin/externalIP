@@ -1,0 +1,21 @@
+#!/bin/sh
+
+##
+## Script that show your IP public from website www.myip.dk
+## Author: Francesco Di Nardo
+## contact me: francesco.dinardo85@gmail.com
+##
+
+if [[ ! -d $HOME/Documenti/PublicIP ]] 
+then
+	mkdir $HOME/Documenti/PublicIP
+	cd $HOME/Documenti/PublicIP
+else
+	cd $HOME/Documenti/PublicIP
+	rm ./* 
+fi
+
+wget -q http://checkip.dyndns.com/
+line=$(cat index.html | cut -d : -f 2 | cut -d '<' -f 1)
+echo $line
+

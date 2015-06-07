@@ -1,0 +1,67 @@
+#!/bin/bash
+
+## Run conky multiple instances  ##
+## Or simply run one instance with your configuration ( different from the standard conkyrc )
+
+
+#Functions
+
+# Check if the file exists
+function isFileExists {
+    
+    if [ -f $1 ]; then
+        return true
+    else
+        return false
+    fi
+}
+
+##########################END FUNCTIONS##########################
+
+#If conky is running then kill it.
+test -z "`pgrep conky`" || killall -9 conky
+
+# Check the argouments
+if [ $# -gt 2 ];then 
+    echo "USAGE: my_conky [config-file]"
+    echo "config-file is the path of your own configuration for conky"
+    exit
+fi
+
+#Check the configuration
+if [ -z $1 ];then 
+	conky_conf="/panel/center.conkyrc"
+    conky_dir="$HOME/.conky"
+else
+    if isFileExists $1;then
+        conky_dir=""
+        conky_conf=$1
+    else
+        echo "ERROR: no such file [$1]"
+        exit
+    fi
+fi
+
+#debug
+echo current conkypath: $conky_dir$conky_conf
+
+#Vbls
+START="conky -d -c"
+
+#Start first instance of conky.
+sleep 0.5
+$START $conky_dir$conky_conf
+
+# If second argoument is nonzero string, 
+# then run second config
+if [ -n $2 ];then
+    #Start second instance of conky
+    if isFileExists $2; then
+        sleep 0.5
+        $START $2
+    else
+        echo "ERROR: no such file [$2]"
+        exit
+fi
+
+exit

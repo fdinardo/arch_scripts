@@ -1,0 +1,42 @@
+#!/bin/bash
+
+#######################################################################
+# Author: Francesco Capano	
+# Last modify: 27/07/2014 by Francesco Di Nardo
+#######################################################################
+# This script allow you to authenticate as a 
+# Student into the 'University of Salerno' WLC Net.
+# USAGE: LoginWLC <Student UserName> [password in clear]
+# NOTE: It's not safe to put the password as argument directly.
+#       So i modify it to put the password at runtime (like sudo).
+#######################################################################
+
+USERNAME=$1
+echo $USERNAME
+
+# Se Non ho messo la psw come secondo argomento
+# allora chiedila in input nascondendo l'output.
+if [ $2 ]; then
+	PSW=$2;
+else
+	echo -n "[Login]Password per l'email studenti: "
+	stty -echo
+	read PSW
+	stty echo
+	echo "" #-> Force \n to be output
+fi
+
+# Funzione per la connessione
+while [ 1 ]; do
+
+	FETCHED=$(curl google.com)
+	NOTLOGGED=$(echo $FETCHED | grep -i 'wlc.unisa')
+	if [ -n "$NOTLOGGED" ]; then
+		echo 'Logging in...'
+		a=$(curl -k -d '"'"referer=https://captive.unisa.it/main.htm&err_flag=0&username=$USERNAME@studenti.unisa.it&password=$PSW&buttonClicked=4&redirect_url="'"' https://wlc.unisa.it/login.html?buttonClicked=0&redirect_url=google.com 1>/dev/null)
+		sleep 5
+	else
+		echo 'You are now logged!'
+		sleep 15
+	fi
+done

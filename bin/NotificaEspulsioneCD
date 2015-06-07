@@ -1,0 +1,16 @@
+#!/bin/sh
+# Comando che permette l'uso del tasto eject della tastiera.
+# Notificando l'espulsione del CD-ROM
+# Autore: Francesco DI Nardo
+
+
+
+# [EJECT] --> Invocato con l'opzione "-T" si riferisce al CD_ROM e sfrutta il il vassoio (tray) che solo il cd-rom ha.
+eject -T 2> /dev/null
+
+#Se il vassoio e quindi il cd sono stato espulsi entra nell'if, altrimenti fai l'else.
+if [[ $? -eq 0 ]]; then
+	notify-send -i "/usr/share/icons/Faenza/actions/scalable/media-eject.svg" Disco espulso
+else
+	notify-send -i "/usr/share/icons/Faenza/actions/scalable/media-eject.svg" Nessun Disco
+fi

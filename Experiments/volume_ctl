@@ -1,0 +1,30 @@
+#!/bin/sh
+
+if [ $1 = 'up' ]; then
+    amixer set Master 2+
+elif [ $1 = 'down' ]; then
+    amixer set Master 2-
+elif [ $1 = 'mute' ]; then
+    amixer set Master toggle
+else
+    echo "Unknown control command: $1" >&2
+    exit 1
+fi
+VOLUME=$(amixer sget Master | sed '/^ *Front\ Left: /{s/^.*\[\(.*\)%\].*/\1/;p;};d;')
+STATUS=$(amixer sget Master | awk '$2 == "Left:" { print $NF; }')
+if [ $STATUS = '[off]' ]; then
+    ICON=notification-audio-volume-muted
+else
+    echo $VOLUME
+    if [ $VOLUME -eq 0 ]; then
+        ICON=notification-audio-volume-off
+    elif [ $VOLUME -lt 33 ]; then
+        ICON=notification-audio-volume-low
+    elif [ $VOLUME -lt 66 ]; then
+        ICON=notification-audio-volume-medium
+    else
+        ICON=notification-audio-volume-high
+    fi
+    VOLUME="${VOLUME}%"
+fi
+notify-send "Volume" -i $ICON -h int:value:$VOLUME -h string:x-canonical-private-synchronous:

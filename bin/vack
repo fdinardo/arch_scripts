@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Author: Francesco Di Nardo <francesco.dinardo85@gmail.com>
+# 
+# Search and edit files with vim that contains the word exactly
+# USAGE: $ vack <word1> .... <wordN> [-p pathToSearchFile ] 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+if [ $# != 1 ]; then
+    echo "The arguments number is not correct."
+    echo "Try it with only one argument."
+    exit 255;
+fi
+
+PATHSEARCH=$(pwd)
+RESULT=$(grep -Ril "$1.*" $PATHSEARCH)
+
+if [ -z "$RESULT" ]; then
+    echo "No matchs found"
+    exit 254;
+fi
+
+echo $RESULT
+
+echo -n "Do you want to open all [y/N]? "
+read CHOICE 
+
+if [[ "$CHOICE" == "y" || "$CHOICE" == "Y" ]]; then 
+    vim -O $RESULT
+fi
+
+# fname=$1;
+# shift;
+# vim `ack -g \\\b${fname}[^\/]*\$  | head -1` $@
+
