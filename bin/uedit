@@ -31,11 +31,11 @@
 
 # function:choesEditor
 # Ask the user's preferred editor (by default is vim)
-# TODO:revision 1: ADD check if the vim and gedit is installed (or if run KDE check KATE)  
+# TODO:revision 1: ADD check if the vim and gedit are installed (or if run KDE check KATE)  
 function choseEditor {
     EDITOR=$EDITOR
     echo "Choose Editor:"
-    echo "[1] $EDITOR (default)"
+	echo "[1] $(basename $EDITOR) (default)"
     echo "[2] gedit"
     echo -n ">> "
     read CHOOSE

@@ -1,0 +1,18 @@
+#! /bin/bash
+
+_cmd_in_bg_status() {
+	if [ -n "$1"  ];then
+		nohup $1 </dev/null &>/dev/null &
+	fi
+}  
+
+spotify=$(which spotify)
+
+scaling_factor=$(gsettings get org.gnome.desktop.interface scaling-factor | cut -d" " -f2)
+
+if (( $scaling_factor == 2 ));
+then
+	_cmd_in_bg_status "$spotify --force-device-scale-factor=2 %U"
+else
+	_cmd_in_bg_status "$spotify"
+fi;

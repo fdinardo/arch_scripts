@@ -5,7 +5,8 @@ COUNT=$(ls -1 $MYPATH/files | wc -l)
 if [[ $COUNT != "0" ]]; then
 	ls -1 $MYPATH/files
 	echo
-	echo -n "Ci sono $COUNT files da eliminare? [y/N]:"
+	echo "Ci sono $COUNT files."
+   	echo -n	"Vuoi svuotare il cestino? [y/N]:"
 	read CHOICE
 	if [[ $CHOICE == "y" || $CHOICE == "Y" ]]; then
 		rm -r $MYPATH/files/* 2> /dev/null;

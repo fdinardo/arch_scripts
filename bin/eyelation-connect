@@ -1,0 +1,26 @@
+#!/bin/bash
+
+if [[ $# == 0 ]]
+then
+	my_user="francesco"
+fi
+
+while [[ $# > 0 ]]
+do
+	key="$1"
+	case $key in
+		-u|--user)
+			my_user="$2"
+			shift #pointer on $2 the shift after esac will be $3.
+			;;
+		*)
+			echo error
+			exit -1
+			;;
+	esac
+	shift #next param
+done
+
+echo "Connecting to eyelation Azure server as user: $my_user ..."
+
+ssh $my_user@eyelation.cloudapp.net -p 22

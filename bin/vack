@@ -2,9 +2,9 @@
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Author: Francesco Di Nardo <francesco.dinardo85@gmail.com>
-# 
+#
 # Search and edit files with vim that contains the word exactly
-# USAGE: $ vack <word1> .... <wordN> [-p pathToSearchFile ] 
+# USAGE: $ vack <word1> .... <wordN> [-p pathToSearchFile ]
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 

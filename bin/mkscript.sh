@@ -1,10 +1,10 @@
-#!/bin/bash -       
+#!/bin/bash -
 #title           :mkscript.sh
 #description     :This script will make a header for a bash script.
-#author		       :bgw + francdin@gmail.com
+#author		     :bgw + francdin@gmail.com
 #date            :20141013
-#version         :0.5    
-#usage		       :bash mkscript.sh
+#version         :0.5
+#usage		     :bash mkscript.sh
 #notes           :Install Vim and gedit to use this script.
 #bash_version    :4.1.5(1)-release
 #==============================================================================
@@ -53,7 +53,7 @@ fi
 eval set -- "$getopt_results"
 while true
 do
-  case "$1" in 
+  case "$1" in
     --name | -n)
         title="$2";
         shift 2;
