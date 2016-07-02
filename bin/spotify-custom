@@ -12,7 +12,7 @@ scaling_factor=$(gsettings get org.gnome.desktop.interface scaling-factor | cut 
 
 if (( $scaling_factor == 2 ));
 then
-	_cmd_in_bg_status "$spotify --force-device-scale-factor=2 %U"
+	_cmd_in_bg_status "$spotify --force-device-scale-factor=2.0000001 %U"
 else
-	_cmd_in_bg_status "$spotify"
+	_cmd_in_bg_status "$spotify --force-device-scale-factor=1.0000001 %U"
 fi;

@@ -72,7 +72,9 @@ _print_usage() {
 	echo -e "\t\tseconds = number of seconds to wait before restart gnome-shell if -r is provided. Default = 3seconds"
 	echo -e "\t\tThis is to avoid the bad initialization of Nautilus (not display icons on desktop).\n"
 	echo -e "\t-h| --help:"
-	echo -e "\t\tPrint this info."
+	echo -e "\t\tPrint this info.\n"
+	echo -e "\t-ff| --firefox:"
+	echo -e "\t\tSet a configuration file for firefox to reflect changes"
 }
 
 # Helper for check the value of $?
@@ -135,7 +137,7 @@ _restart_nautilus() {
 
 _set_firefox_scale_factor() {
 	FF_DIR=$HOME/.mozilla/firefox/;
-	FF_RAND_DIR=$(basename $HOME/.mozilla/firefox/*.default);
+	FF_RAND_DIR=$(basename $HOME/.mozilla/firefox/*.default*);
 	echo 'user_pref("layout.css.devPixelsPerPx", "'$1'");' > $FF_DIR$FF_RAND_DIR/user.js
 
 	if [ $? -eq 0 ];
@@ -160,6 +162,8 @@ fi
 # Set default time to wait before restart gnome-shell
 MYWAIT=3
 FORCE=false
+FF=false
+RESTARTGNOME=false
 
 while [[ $# > 0 ]]
 do
@@ -194,6 +198,9 @@ do
 			#      LIBPATH="$2"
 			#      shift # past argument
 			#      ;;
+		-ff|--firefox)
+			FF=true
+			;;
 		*)
 			# unknown option
 			_print_error_args "$1"
@@ -243,17 +250,20 @@ fi
 
 # set the value VAL in WindowScalingFactor (for GTK)
 # and set scaling-factor (for gnome-shell)
+
 gsettings set org.gnome.settings-daemon.plugins.xsettings overrides "{'Gdk/WindowScalingFactor': <$VAL>}"
 gsettings set org.gnome.desktop.interface scaling-factor "$VAL"
 
 # Setting firefox scaling adding user.js file in firefox_dir
-_set_firefox_scale_factor "$VAL"
+if $FF; then
+	_set_firefox_scale_factor "$VAL";
+fi
 
 # Restart nautilus
 _restart_nautilus
 
 # Restart gnome-shell
-if [ $RESTARTGNOME ]; then
+if $RESTARTGNOME; then
 	sleep "${MYWAIT}"
 	_restart_gnome_shell
 fi
