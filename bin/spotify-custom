@@ -4,9 +4,9 @@ _cmd_in_bg_status() {
 	if [ -n "$1"  ];then
 		nohup $1 </dev/null &>/dev/null &
 	fi
-}  
+}
 
-spotify=$(which spotify)
+spotify=$(type spotify >/dev/null 2>&1)
 
 scaling_factor=$(gsettings get org.gnome.desktop.interface scaling-factor | cut -d" " -f2)
 

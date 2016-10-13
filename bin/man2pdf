@@ -20,7 +20,7 @@
 ## if and only if exists the manual for the argouments.
 
 ## Check dependences.
-if ! which ps2pdf &>/dev/null || ! which man &>/dev/null; then
+if ! type ps2pdf >/dev/null 2>&1 || ! type man >/dev/null 2>&1; then
 	echo "Check if the commands 'ps2pdf' and 'man' are in $PATH"
 	echo "or if they are installed."
     echo "Otherwise you have to install them."

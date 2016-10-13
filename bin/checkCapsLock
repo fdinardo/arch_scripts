@@ -3,7 +3,7 @@
 ## It check the status of Caps Lock
 ## and sends a message:
 
-if ! which notify-send > /dev/null; then 
+if ! type notify-send >/dev/null 2>&1; then
 	echo -e "Manca il pacchetto \"notify-send\"\n"
 	exit
 fi
@@ -14,7 +14,7 @@ status=`xset q | grep -i caps | cut -d: -f3 | cut -d" " -f4`
 	if [[ $status != $previous ]]; then
 		if [[ $status == "on" ]]; then
 			path="/usr/share/icons/Faenza/actions/scalable/lock.svg"
-		else 
+		else
 			path="/home/angelsoul/Immagini/ImmaginiProg/nolock.png"
 		fi
 		killall notify-osd >> /dev/null
