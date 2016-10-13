@@ -1,0 +1,103 @@
+#!/bin/bash -   
+#title          :homestead-mysql
+#description    :Connect to mysql instance of homestead vagrant-box
+#author         :Francesco Di Nardo
+#date           :20161013
+#version        :0.1    
+#usage          :./homestead-mysql
+#notes          :       
+#bash_version   :4.3.46(1)-release
+#============================================================================
+
+function _print_usage {
+	echo ""
+	echo "Usage: homstead [options] [--] DATABASE_NAME [...]"
+	echo ""
+	echo "  --help            Display this message"
+	echo "  -u|--user USER    Specific the user for the connection, default: homestead"
+	echo "  -h|--host HOST    Specific the host for the connection, default: 192.168.10.10"
+	echo "  -p|--port PORT    Specific the host for the connection, default: 3306"
+	echo "  DATABASE_NAME     Specific the DATABASE NAME for the connection, default: homestead"
+	echo ""
+	echo "Note that this tool uses Laravel Homstead and mysql command,"
+	echo "make sure you already have them installed on your machine."
+	echo ""
+	echo "CREDITS"
+	echo "Francesco Di Nardo"
+	echo ""
+	echo "Report bugs to <francdin@gmail.com>"
+
+}
+
+function _print_error_args {
+	echo ""
+	echo "$1 is not a valid option."
+	_print_usage
+}
+
+#
+# Check Argouments options
+#
+function checkOpts {
+	while [[ $# > 0 ]]; do
+		key="$1"
+		case $key in
+			-u|--user)
+				user=$2
+				shift
+				;;
+			-h|--host)
+				host=$2
+				shift
+				;;
+			-p|--port)
+				port=$2
+				shift
+				;;
+			--help)
+				_print_usage
+				exit 0
+				;;
+			*)
+				if [[ "$1" =~ ^- ]]; then
+					_print_error_args "$1"
+					exit 1
+				else
+					db="$1"
+				fi
+				;;
+		esac
+		shift
+	done
+}
+
+#
+# Check if the program passed as argoument is installed into the system
+# @param: program name [example: ls]
+#
+function check_prog {
+	type $1 >/dev/null 2>&1 || { echo >&2 "$1 package is missing. Aborting..."; exit 1; }
+}
+
+#==================== Main ===========================
+check_prog "mysql"
+check_prog "homestead"
+
+# ====== VBLS ====== #
+# Remember to prompt the password
+# ****Don't use inline passwords
+user='homestead'
+host='192.168.10.10'
+port='3306'
+db='homestead'
+
+# Chech options
+checkOpts $@;
+
+#echo -e "DB  :\t $db"
+#echo -e "User:\t $user"
+#echo -e "Host:\t $host"
+#echo -e "Port:\t $port"
+
+# Run mysql
+mysql -u$user --port=$port -h$host -p $db
