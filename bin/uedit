@@ -32,7 +32,7 @@
 #=====================================================
 # function:choesEditor
 # Ask the user's preferred editor (by default is vim)
-# TODO: Think to use xdg-open instad of overwrite EDITOR vbl
+# TODO: Think to use xdg-open instad of overwrite EDITOR env vbl
 #
 function choseEditor {
 	EDITOR=$EDITOR
@@ -55,8 +55,8 @@ function choseEditor {
 function _check_dependencies {
     local dependences=("$@")
     local exceptions=();
-    for i in ${dependences[@]};
-        type ${i} >/dev/null 2>&1 || exceptions+=(${i})
+    for i in ${dependences[@]}; do
+		type ${i} >/dev/null 2>&1 || exceptions+=(${i})
     done
     if [ ${#exceptions[@]} -eq 1 ]; then
         echo "Package ${exceptions[0]} is missing. Exit..."
