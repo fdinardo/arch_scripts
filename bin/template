@@ -1,7 +1,8 @@
 #!/bin/bash
 
 ## Copyright (C) 2012, Francesco Di Nardo
-## If you have any questions or to report me a bug, contact me on: francesco.dinardo85@gmail.com
+## If you have any questions or to report me a bug, contact me on:
+## francesco.dinardo85@gmail.com
 
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -15,25 +16,26 @@
 
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
-   
-## template:Crea un modello presente in gnome-models nella directory corrente.
 
-# Includi una seria di variabili per i colori
-. colors
+#===============================================================================
+# template: Crea un modello presente in gnome-models nella directory corrente.
+#
+#===============================================================================
 
+#===============================================================================
 # Crea il file. Copiando il contenuto del template nel nuovo file
-# Argoumnts: (1) file da copiare 
-#            (2) file da creare
-# Returns: true se andato a buon fine la creazione
-#          false altrimenti
+# Argomenti: (1) file da copiare
+#			 (2) file da creare
+# Return:    true se andato a buon fine la creazione
+#            false altrimenti
 function createFile(){
     if cat "$MODEL_DIR/$1" > "$PWD/$2" ; then
-    	#true
-        return 0
-    else
-    	#false
-        return 1
-    fi
+		#true
+    	return 0
+	else
+		#false
+		return 1
+	fi
 }
 
 # Controlla se l'input è numerico
@@ -41,23 +43,32 @@ function isNumeric() {
     echo "$@" | grep -q -v "[^0-9]"
 }
 
-MODEL_DIR="/home/$USER/Modelli"
-array=( `ls $MODEL_DIR` )
-count=${#array[@]}
+#====================================== MAIN ===================================
+templates_dir="/home/$USER/Modelli"
 
+# Set Bash Option nullglob see:
+# https://www.gnu.org/software/bash/manual/html_node/Filename-Expansion.html
+shopt -s nullglob
+array=(${templates_dir}/*)
+shopt -u nullglob
+
+count=${#array[@]}
 echo "Scegli un modello:"
 for ((i=0; i<$count; i++)); do
-	echo -e "$LGREEN$i) $CYAN${array[$i]}$Z"
+	model="${array[$i]}"
+	model_name=$(basename "${array[$i]}")
+	echo -e "$i) $model_name"
 done
 
 echo -n ">> "
 read choice
 
-# Controlla se la scelta è un numero valido. 
+# Controlla se la scelta è un numero valido.
 if isNumeric "$choice"; then
     if (( $choice < $count && $choice >= 0 )); then
-        
-        # Se il nome non è stato dato in imput come argomento chiedi il nome del nuovo file
+
+        # Se il nome non è stato dato in imput come argomento
+        # chiedi il nome del nuovo file
         if [[ $# -lt 1 ]]; then
 	        echo "Nome nuovo file:"
 	        echo -n ">> "
@@ -66,14 +77,14 @@ if isNumeric "$choice"; then
             name=$1
         fi
 
-	    file=${array[$choice]}
+	    file="${array[$choice]}"
 
 	    # Se il file origine non ha estensione allora non la segnalare
-	    if ! `ls "$MODEL_DIR/"$file | grep "\." >> /dev/null `; then
+	    if ! `ls "$MODEL_DIR/$file" | grep "\." >> /dev/null `; then
 		    extension=""
 		# altrimenti prendi quella del file di origine
 	    else
-		    extension=".$( echo $file | cut -d . -f2 )"		
+		    extension=".$( echo $file | cut -d . -f2 )"
 	    fi
 
         filename=$name$extension
@@ -87,26 +98,25 @@ if isNumeric "$choice"; then
 				if createFile $file $filename ; then
 					echo -e "Sovrascritto file $CYAN$filename$Z in $LGREEN$PWD$Z"
 					exit 0
-				else 
+				else
 					echo -e "$RED***$Z ERRORE: Impossibile creare $CYAN$filename$Z in $LGREEN$PWD$Z"
 					exit 1
 				fi
 			else
 				echo -e "File $CYAN$filename$Z non sovrascritto."
-				exit 0 
+				exit 0
 			fi
 		else
-			if createFile $file $filename ; then
+			if createFile "$file" "$filename" ; then
 				echo -e "Creato file $CYAN$filename$Z in $LGREEN$PWD$Z"
 				exit 0
-			else 
+			else
 				echo -e "$RED***$Z ERRORE: Impossibile creare $CYAN$filename$Z in $LGREEN$PWD$Z"
 				exit 1
 			fi
 		fi
-               
-    #ERRORE: indice out of bound     
-    else 
+    #ERRORE: indice out of bound
+    else
 	    echo "USAGE--> inserisci l'indice del modello."
 	    echo -n "USAGE--> un numero compreso fra 0 e "
 	    echo $(($count - 1))
