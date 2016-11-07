@@ -6,13 +6,22 @@ _cmd_in_bg_status() {
 	fi
 }
 
-spotify=$(type spotify >/dev/null 2>&1)
+# Get spotify path
+spotify=$(type -P spotify)
+if [[ ! $? -eq 0 ]];then
+	echo Spotify not found. Please install it.
+	exit 1
+fi
 
 scaling_factor=$(gsettings get org.gnome.desktop.interface scaling-factor | cut -d" " -f2)
 
-if (( $scaling_factor == 2 ));
-then
-	_cmd_in_bg_status "$spotify --force-device-scale-factor=2.0000001 %U"
-else
-	_cmd_in_bg_status "$spotify --force-device-scale-factor=1.0000001 %U"
-fi;
+_cmd_in_bg_status "$spotify --force-device-scale-factor=${scaling_factor}.0000001 %U"
+
+exit 0
+
+#if (( $scaling_factor == 2 ));
+#then
+#	_cmd_in_bg_status "$spotify --force-device-scale-factor=2.0000001 %U"
+#else
+#	_cmd_in_bg_status "$spotify --force-device-scale-factor=1.0000001 %U"
+#fi;

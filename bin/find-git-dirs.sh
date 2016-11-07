@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# NOTE: this script must to be aliased with 'source script_url'
-# to achieve the future of change directory in the terminal
+#====================================================================================
+# NOTE: this script must to be aliased with 'source /path/to/this/script
+#       to achieve the future of change directory in the terminal
+#       Example: alias gitDirs='source /home/angelsoul/scripts/find-git-dirs.sh''
+#====================================================================================
 
 search()
 {

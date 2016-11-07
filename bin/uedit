@@ -19,8 +19,8 @@
 
 #===============================================================================
 #    UEDIT:
-#    You can edit a command, if and only if it's in your PATH, or in your work 
-#    dir, and it is a text file. I use this script to modify my scripts 
+#    You can edit a command, if and only if it's in your PATH, or in your work
+#    dir, and it is a text file. I use this script to modify my scripts
 #    that are in the path, without write the enteir path.
 #
 #    BASH-COMPLETION RULE:
@@ -28,25 +28,6 @@
 #    searching in your PATH and in your work dir.
 #
 #===============================================================================
-
-#=====================================================
-# function:choesEditor
-# Ask the user's preferred editor (by default is vim)
-# TODO: Think to use xdg-open instad of overwrite EDITOR env vbl
-#
-function choseEditor {
-	EDITOR=$EDITOR
-	echo "Choose Editor:"
-	echo "[1] $(basename $EDITOR) (default)"
-	echo "[2] gedit"
-	echo -n ">> "
-	read CHOOSE
-
-	if [[ $CHOOSE == 2 ]]; then
-		EDITOR='gedit'
-	fi
-	echo "Absoulte path: ${1} | opened with $(basename $EDITOR)."
-}
 
 #=====================================================
 # Check for packages dependences.
@@ -65,6 +46,28 @@ function _check_dependencies {
         echo "Packages ${exceptions[*]} are missing. Exit..."
         exit 1
     fi
+}
+
+#=====================================================
+# function:choesEditor
+# Ask the user's preferred editor (by default is vim)
+# TODO: Think to use xdg-open instad of overwrite EDITOR env vbl
+#
+function _chose_editor {
+	local MY_EDITOR=${EDITOR}
+	read CHOOSE
+	if [[ $CHOOSE == 2 ]]; then
+		MY_EDITOR=$(type -P gedit)
+	fi
+	echo ${MY_EDITOR}
+}
+
+#=====================================================
+function _print_menu {
+	echo "Choose Editor:"
+	echo "[1] vim (default)"
+	echo "[2] gedit"
+	echo -n ">> "
 }
 
 #=====================================================
@@ -93,49 +96,108 @@ function _check_valid_opts {
 #
 function _get_file_path {
 	# Check if the file is in the current work dir (pwd)
-	if [ -f ${1} ]; then
-		local RESULT=${1}
-	else
+	local file=$1
+	if [ -f ${file} ]; then
+		local result=$(readlink -f ${file})
+	elif type -P ${file} >/dev/null 2>&1; then
 	# find the absoulte path of the file.
-		if type -P ${1} >/dev/null 2>&1; then
-			local RESULT=$(type -P ${1})
-		else
-			exit 1
-		fi
+		local result=$(type -P ${file})
+	else
+		local result=""
 	fi
-	echo "$RESULT"
+	echo "$result"
 }
 
 #=====================================================
-# Open the file iff it is a text file.
-# Otherwise print an error and exit.
+# Check if it is a text file.
+# Returns true if it is,
+# false otherwise
 #
-function _open_file {
+function _is_text_file {
 	# Check if it is a text file.
-	local TYPE=$(file --mime-type ${2} | cut -d" " -f2 | cut -d/ -f1)
+	local TYPE=$(file --mime-type ${1} | cut -d" " -f2 | cut -d/ -f1)
 	if [[ $TYPE = "text" ]]; then
-		choseEditor ${2}
-		if [[ $EDITOR == 'gedit' ]]; then
-			$EDITOR ${2} &
-		else
-			$EDITOR ${2}
-		fi
+		echo "true"
 	else
-		echo "The type of ${1} is $TYPE."
-		echo "You can modify only text files."
+		echo "false"
+	fi
+}
+
+#=====================================================
+# Open File using MY_EDITOR and check if it needs
+# SUDO for vim or GKSUDO for gedit
+# NOTE: CHECK the form of editor, ex: vim or /usr/lib/vim
+function _open_file_with {
+	local editor=$1
+	local file=$2
+
+	if [[ ${editor} != "$(type -P vim)" ]]; then
+		_open_file_with_gui $editor $file
+	else
+		_open_file_with_cli $editor $file
+	fi
+}
+
+#=====================================================
+# Open a file using the gui (gedit or kate or others)
+# It checks for superuser permissions also
+# TODO Notice the user that the file needs superuser
+#      permissions
+#
+# TODO Try to make it gui editor agnostics
+#
+function _open_file_with_gui {
+	local editor=$1
+	local file=$2
+
+	if [[ -w ${file} ]];then
+		${editor} ${file} >/dev/null 2>&1 &
+	else
+		gksudo ${editor} ${file} >/dev/null 2>&1 &
+	fi
+}
+
+#=====================================================
+# Open a file using the cli (vim or vi or emacs)
+# It checks for superuser permissions also.
+# TODO Notice the user that the file needs superuser
+#      permissions
+#
+function _open_file_with_cli {
+	local editor=$1
+	local file=$2
+
+	if [[ -w ${file} ]];then
+		${editor} ${file}
+	else
+		sudo ${editor} ${file}
 	fi
 }
 
 #============================== MAIN ===========================================
-# TODO: Refactoring prints in functions
-_check_dependencies "vim" "gedit"
+_check_dependencies "vim" "gedit" "sudo" "gksudo"
+
 _check_valid_opts $@
 
 FILEPATH=$(_get_file_path $1)
-if [ ! $? -eq 0 ] ; then
-	echo "Unable to find ${1} 's path. Exit..."
+if [[ ! $? -eq 0 || -z ${FILEPATH} ]] ; then
+	echo "Unable to find ${1} 's path."
+	echo "Exit..."
 	exit 1
 fi
-_open_file ${1} $FILEPATH
+
+IS_TEXT=$(_is_text_file ${FILEPATH})
+if [[ ${IS_TEXT} = "false" ]]; then
+	echo "The type of ${1} is $TYPE."
+	echo "You can modify only text files."
+	exit 1
+fi
+
+_print_menu
+MY_EDITOR=$(_chose_editor ${FILEPATH})
+
+_open_file_with ${MY_EDITOR} ${FILEPATH}
+
+echo "Absoulte path: ${FILEPATH} | opened with $(basename $MY_EDITOR)."
 
 exit 0

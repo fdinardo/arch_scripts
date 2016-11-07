@@ -124,10 +124,10 @@ _restart_nautilus() {
 	echo -ne "Restarting nautilus... "
 
 	# Quit nautilus
-	/usr/bin/nautilus -q &> /dev/null;
+	kill $(pidof nautilus-desktop) &> /dev/null;
 
 	# Run Nautilus in BG
-	if [ $(_cmd_in_bg_status "/usr/bin/nautilus -n") -eq 0 ];
+	if [ $(_cmd_in_bg_status "/usr/bin/nautilus-desktop") -eq 0 ];
 	then
 		echo "OK"
 	else
@@ -250,7 +250,6 @@ fi
 
 # set the value VAL in WindowScalingFactor (for GTK)
 # and set scaling-factor (for gnome-shell)
-
 gsettings set org.gnome.settings-daemon.plugins.xsettings overrides "{'Gdk/WindowScalingFactor': <$VAL>}"
 gsettings set org.gnome.desktop.interface scaling-factor "$VAL"
 
@@ -259,18 +258,15 @@ if $FF; then
 	_set_firefox_scale_factor "$VAL";
 fi
 
-# Restart nautilus
-_restart_nautilus
-
 # Restart gnome-shell
 if $RESTARTGNOME; then
 	sleep "${MYWAIT}"
 	_restart_gnome_shell
 fi
 
-# Setting chrome scale factor: Now Chrome update the scaling factor automatically
+# Restart nautilus
+_restart_nautilus
 
 # Show final message
 echo
 echo ">>>>> The Scaling factor is now set @ $SCALING_FACTOR ."
-

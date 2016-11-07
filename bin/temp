@@ -1,7 +1,9 @@
 #!/bin/bash
-# Show temperatures of cpu and gpu. 
-# If the aticonfig is installed, then use it, else 
+# Show temperatures of cpu and gpu.
+# If the aticonfig is installed, then use it, else
 # use open driver with sensors (ONLY FOR ATI VIDEO CARD)
+
+echo "${PWD}"
 
 acpi -t
 
