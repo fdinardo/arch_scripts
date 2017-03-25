@@ -1,0 +1,41 @@
+#!/bin/bash
+
+function print_usage {
+	echo "Error - USAGE:"
+	echo "spedilab-connect <option> [value]"
+	echo -e "\t-u|--user username : Connect ssh using _username_ as user\n"
+	echo ""
+	echo -e "\t-d : Connect using 'deployer' as user. This is the same of || -u deployer ||\n\n"
+}
+
+user='angelsoul'
+
+#echo $1
+#echo $2
+
+while [[ $# > 0 ]];
+do
+	key=$1
+	case $key in
+		-u|--user)
+			user=$2
+			shift;
+			shift;
+			;;
+		-d)
+			user='deployer'
+			shift
+			;;
+		*)
+			print_usage
+			exit
+			;;
+	esac
+done
+
+
+echo Connecting to aws server @ ec2-54-154-186-8.eu-west-1.compute.amazonaws.com as user: ${user}
+
+
+ssh $user@ec2-54-154-186-8.eu-west-1.compute.amazonaws.com
+
