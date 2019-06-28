@@ -5,10 +5,31 @@ function print_usage {
 	echo "spedilab-connect <option> [value]"
 	echo -e "\t-u|--user username : Connect ssh using _username_ as user\n"
 	echo ""
-	echo -e "\t-d : Connect using 'deployer' as user. This is the same of || -u deployer ||\n\n"
 }
 
-user='angelsoul'
+function checksshpass {
+	type -a sshpass >/dev/null 2>&1
+	local status=$?
+	if [ $status -ne 0 ]
+	then
+		echo "You have not sshpass installed. Switched to normal ssh"
+		echo -e "\t HINT: try apt-get install sshpass to avoiding insert psw for spedilab and root users"
+		cmd=$(which ssh)
+		sshpassfound=0
+	else
+		cmd=$(which sshpass)
+		sshpassfound=1
+	fi
+}
+
+
+declare -A PSWS
+PSWS[spedilab]=''
+PSWS[root]=""
+checksshpass
+user=''
+host=''
+port=22
 
 #echo $1
 #echo $2
@@ -19,12 +40,12 @@ do
 	case $key in
 		-u|--user)
 			user=$2
-			shift;
-			shift;
-			;;
-		-d)
-			user='deployer'
 			shift
+			shift
+			;;
+		-h|--help)
+			print_usage
+			exit
 			;;
 		*)
 			print_usage
@@ -33,9 +54,24 @@ do
 	esac
 done
 
+psw=${PSWS[$user]}
 
-echo Connecting to aws server @ ec2-54-154-186-8.eu-west-1.compute.amazonaws.com as user: ${user}
+fullcmd="$cmd $user@$host"
 
+echo -e "Connecting to aws server @ ${host} as user: ${user} and client: $cmd\n"
 
-ssh $user@ec2-54-154-186-8.eu-west-1.compute.amazonaws.com
+if [ $sshpassfound -ne 0 ]
+then
+	if [ -n "$psw" ]
+	then
+		sshpass -p ${psw}  ssh -o StrictHostKeyChecking=no $user@$host
+	else
+		echo -e "\nNo password found for the user $user"
+		echo -e "Exit.\n"
+		exit
+	fi
+else
+	$fullcmd
+fi
 
+# END

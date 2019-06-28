@@ -128,9 +128,11 @@ function _is_text_file {
 # SUDO for vim or GKSUDO for gedit
 # NOTE: CHECK the form of editor, ex: vim or /usr/lib/vim
 function _open_file_with {
-	local editor=$1
+	local editor=$(type -P $1)
 	local file=$2
 
+	echo $editor
+	echo "Sto dentro _open_file_with function:"
 	if [[ ${editor} != "$(type -P vim)" ]]; then
 		_open_file_with_gui $editor $file
 	else
@@ -195,6 +197,7 @@ fi
 
 _print_menu
 MY_EDITOR=$(_chose_editor ${FILEPATH})
+
 
 _open_file_with ${MY_EDITOR} ${FILEPATH}
 
