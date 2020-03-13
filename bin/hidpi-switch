@@ -120,21 +120,6 @@ _restart_gnome_shell() {
 	fi
 }
 
-_restart_nautilus() {
-	echo -ne "Restarting nautilus... "
-
-	# Quit nautilus
-	kill $(pidof nautilus-desktop) &> /dev/null;
-
-	# Run Nautilus in BG
-	if [ $(_cmd_in_bg_status "/usr/bin/nautilus-desktop") -eq 0 ];
-	then
-		echo "OK"
-	else
-		echo " ERROR nautilus restart"
-	fi
-}
-
 _set_firefox_scale_factor() {
 	FF_DIR=$HOME/.mozilla/firefox/;
 	FF_RAND_DIR=$(basename $HOME/.mozilla/firefox/*.default*);
@@ -263,9 +248,6 @@ if $RESTARTGNOME; then
 	sleep "${MYWAIT}"
 	_restart_gnome_shell
 fi
-
-# Restart nautilus
-_restart_nautilus
 
 # Show final message
 echo
