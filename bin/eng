@@ -1,3 +1,18 @@
 #!/bin/bash
 
-LANG=C $@ &
+# Usage: eng <command>
+
+# Funzione per tradurre un comando in inglese
+translate_command() {
+  LC_ALL="en_US.UTF-8"
+  "$@"
+}
+
+translate_command "$@"
+
+
+# Per settare la shell in inglese basta dare i seguenti comandi
+# export LC_ALL=C
+#
+# per ripristinare
+# unset LC_ALL

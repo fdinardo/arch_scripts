@@ -204,8 +204,8 @@ function _open_file_with_cli {
 
 	if [[ -w ${file} ]];then
 		${editor} ${file}
-	else
-		sudo ${editor} ${file}
+	#else
+	#	sudo ${editor} ${file}
 	fi
 }
 
