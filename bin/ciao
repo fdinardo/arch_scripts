@@ -20,9 +20,30 @@
 ##Saluta l'utente a seconda dell'orario.
 
 HOUR=`date +%H`
+NEOFETCH=1
+LOLCAT=1
+if ! command -v neofetch &> /dev/null
+then
+    NEOFETCH=0
+fi
+
+if ! command -v lolcat &> /dev/null
+then
+    LOLCAT=0
+fi
 
 if [[ "$HOUR" -lt "12" || "$HOUR" -eq "12" ]]; then
     echo "Buongiorno $USER"
 else
     echo "Buonasera $USER"
+fi
+
+if [ $NEOFETCH -eq 1 ];
+then
+    if [ $LOLCAT -eq 1 ];
+    then
+        neofetch | lolcat
+    else
+        neofetch
+    fi
 fi
